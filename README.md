@@ -29,10 +29,7 @@ Getting the basics to compile from source is pretty straightforward:
 
 1. Clone the repo into your favorite IDE
 1. Mark `core/src` and `uis/src` as project roots (source modules)
-1. To the uis module, add `core/lib/*` and one of the swt.jars at `/uis/lib/`:<br>
-  `swt-win64.jar` on Windows<br>
-  `swt-cocoa-64.jar` on OSX<br>
-  `swt-linux-64.jar` on Linux (GTK)
+1. To the uis module, add `core/lib/*` and the Cocoa SWT jar from the macOS build. See [docs/MACOS.md](docs/MACOS.md).
 1. To the core module, add `core/lib/*`
 1. Make `uis` module depend on `core`.  `Core` should not depend on `uis`
 
@@ -59,7 +56,7 @@ Apple Silicon uses `scripts/run-macos.sh`. Prerequisites and the launch command 
 Running is only few more steps:
 
 * Main class is `com.biglybt.ui.Main` in module `uis`
-* Working Directory should be a new folder, since the app will write things to it. Put the [`aereg.dll`](core/lib/libWIN32Access/README.md) or `libOSXAccess.jnilib` in there.
+* Working Directory should be a new folder, since the app will write things to it. Put `libOSXAccess.jnilib` in there when you have built it.
   
   When a normal user is running the app, the working directory is where the jar, executable, and libraries (dll, so, jnilib) are.
 * If you want a separate config dir from the default one, use VM Option `-Dazureus.config.path=<some config path>`
