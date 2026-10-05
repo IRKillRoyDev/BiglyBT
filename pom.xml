@@ -12,26 +12,11 @@
 	<properties>
 		<project.build.sourceEncoding>8859_1</project.build.sourceEncoding>
 		<java.version>1.8</java.version>
-		<swt.version>4.9</swt.version> <!-- build uses libs in uis/libs/*.jar -->
+		<!-- Eclipse SWT on Maven Central. 3.130.0 is Java 17 bytecode and ships
+		     Cocoa natives for both macOS architectures (libswt-*-4969r18). -->
+		<swt.platform.version>3.130.0</swt.platform.version>
 		<junit.jupiter.version>5.4.0</junit.jupiter.version>
 	</properties>
-
-	<repositories>
-		<repository>
-			<id>maven-eclipse-repo-fork</id><!-- a repository for swt 4.9 binaries -->
-			<url>https://lislei.github.io/maven-eclipse.github.io/maven</url>
-		</repository>
-		<!--
-		<repository>
-			<id>maven-eclipse-repo</id>
-			<url>http://maven-eclipse.github.io/maven</url>
-		</repository>
-		<repository>
-			<id>maven-eclipse-repo-dev</id>
-			<url>http://maven-eclipse.github.io/dev-releases/maven</url>
-		</repository>
-		-->
-	</repositories>
 
 	<modules>
 		<module>core</module>
@@ -65,59 +50,6 @@
 		</dependencies>
 	</dependencyManagement>
 
-	<profiles>
-		<profile>
-			<id>mac-swt</id>
-			<activation>
-				<os>
-					<family>mac</family>
-				</os>
-			</activation>
-			<dependencies>
-				<dependency>
-					<groupId>org.eclipse.swt</groupId>
-					<artifactId>org.eclipse.swt.cocoa.macosx.x86_64</artifactId>
-					<version>${swt.version}</version>
-					<scope>provided</scope>
-				</dependency>
-			</dependencies>
-		</profile>
-
-		<profile>
-			<id>linux-swt</id>
-			<activation>
-				<os>
-					<family>linux</family>
-				</os>
-			</activation>
-			<dependencies>
-				<dependency>
-					<groupId>org.eclipse.swt</groupId>
-					<artifactId>org.eclipse.swt.gtk.linux.x86_64</artifactId>
-					<version>${swt.version}</version>
-					<scope>provided</scope>
-				</dependency>
-			</dependencies>
-		</profile>
-
-		<profile>
-			<id>windows-swt</id>
-			<activation>
-				<os>
-					<family>windows</family>
-				</os>
-			</activation>
-			<dependencies>
-				<dependency>
-					<groupId>org.eclipse.swt</groupId>
-					<artifactId>org.eclipse.swt.win32.win32.x86_64</artifactId>
-					<version>${swt.version}</version>
-					<scope>provided</scope>
-				</dependency>
-			</dependencies>
-		</profile>
-	</profiles>
-
 	<build>
 		<pluginManagement>
 			<plugins>
@@ -144,7 +76,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
-					<version>3.6.2</version>
+					<version>3.13.0</version>
 					<configuration>
 						<source>${java.version}</source>
 						<target>${java.version}</target>
