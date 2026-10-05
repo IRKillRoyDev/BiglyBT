@@ -52,7 +52,7 @@ External Annotations definitions are a WIP and not complete list of definitions.
 
 ## Running on macOS
 
-Apple Silicon and Intel use `scripts/run-macos.sh`. Prerequisites, the launch command, and what is not in this local run (no `.app` bundle) are in [docs/MACOS.md](docs/MACOS.md).
+Apple Silicon uses `scripts/run-macos.sh`. Prerequisites and the launch command are in [docs/MACOS.md](docs/MACOS.md).
 
 ## Running in Dev Environment
 

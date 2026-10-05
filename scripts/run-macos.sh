@@ -1,5 +1,5 @@
 #!/bin/bash
-# Build BiglyBT and launch the SWT UI on macOS (Apple Silicon or Intel).
+# Build BiglyBT and launch the SWT UI on Apple Silicon.
 # Cocoa SWT must start on the first thread, so this script passes
 # -XstartOnFirstThread. It does not build an Install4j .app bundle.
 
@@ -30,21 +30,13 @@ if [ -z "$JAVA_MAJOR" ] || [ "$JAVA_MAJOR" -lt 17 ]; then
 fi
 
 ARCH="$(uname -m)"
-case "$ARCH" in
-	arm64|aarch64)
-		PROFILE="mac-aarch64"
-		;;
-	x86_64)
-		PROFILE="mac-x86_64"
-		;;
-	*)
-		echo "Unsupported architecture: $ARCH" >&2
-		exit 1
-		;;
-esac
+if [ "$ARCH" != "arm64" ] && [ "$ARCH" != "aarch64" ]; then
+	echo "This build is Apple Silicon only. uname -m reported ${ARCH}." >&2
+	exit 1
+fi
 
-echo "Building with Maven profile ${PROFILE} (JDK ${JAVA_SPEC}, ${ARCH})"
-./mvnw -DskipTests -P"$PROFILE" package
+echo "Building with Maven profile mac-aarch64 (JDK ${JAVA_SPEC})"
+./mvnw -DskipTests -Pmac-aarch64 package
 
 STAGE="$ROOT/uis/target/macos"
 RUN_DIR="$ROOT/dist/macos"
