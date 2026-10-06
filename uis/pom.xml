@@ -187,35 +187,6 @@
             </build>
         </profile>
         <profile>
-            <id>no-swt</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-antrun-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>remove-swt-ui-resources</id>
-                                <phase>process-resources</phase>
-                                <configuration>
-                                    <target>
-                                        <delete dir="src/com/biglybt/ui/swt"/>
-                                        <delete dir="src/com/biglybt/ui/swing"/>
-                                        <delete dir="src/com/biglybt/ui/images"/>
-                                        <delete dir="src/com/biglybt/ui/icons"/>
-                                        <delete dir="src/com/biglybt/ui/skin"/>
-                                        <delete dir="src/eclipse/swt"/>
-                                    </target>
-                                </configuration>
-                                <goals>
-                                    <goal>run</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
             <id>plugin-api</id>
             <build>
                 <plugins>
