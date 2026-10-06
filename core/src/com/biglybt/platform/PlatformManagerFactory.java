@@ -56,9 +56,6 @@ PlatformManagerFactory
 					if ( !explicit_class ){
 						int platformType = getPlatformType();
 						switch (platformType) {
-							case PlatformManager.PT_WINDOWS:
-								cla = "com.biglybt.platform.win32.PlatformManagerImpl";
-								break;
 							case PlatformManager.PT_MACOSX:
 								cla = "com.biglybt.platform.macosx.PlatformManagerImpl";
 								break;

@@ -73,6 +73,16 @@
 			<build>
 				<plugins>
 					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-compiler-plugin</artifactId>
+						<configuration>
+							<excludes>
+								<!-- Uses sun.net.spi.nameservice, removed from the JDK after 8. -->
+								<exclude>com/biglybt/core/util/spi/AENameServiceDescriptor.java</exclude>
+							</excludes>
+						</configuration>
+					</plugin>
+					<plugin>
 						<artifactId>maven-antrun-plugin</artifactId>
 						<executions>
 							<execution>
@@ -80,8 +90,9 @@
 								<phase>process-resources</phase>
 								<configuration>
 									<target>
-										<delete file="src/META-INF/services/sun.net.spi.nameservice.NameServiceDescriptor"/>
-										<delete file="src/com/biglybt/core/util/spi/AENameServiceDescriptor.java"/>
+										<!-- Drop the JDK 8 DNS SPI from the build output. Do not delete
+										     sources; a JDK 9+ build used to remove them from the working tree. -->
+										<delete file="${project.build.outputDirectory}/META-INF/services/sun.net.spi.nameservice.NameServiceDescriptor"/>
 										<copy file="src/com/biglybt/internat/MessagesBundle_iw_IL.properties"
 													tofile="${project.build.outputDirectory}/com/biglybt/internat/MessagesBundle_he_IL.properties"/>
 										<copy file="src/com/biglybt/internat/MessagesBundle_in_ID.properties"

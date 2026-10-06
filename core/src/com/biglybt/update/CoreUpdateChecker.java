@@ -47,8 +47,6 @@ import com.biglybt.pif.ui.UIManagerEvent;
 import com.biglybt.pif.update.*;
 import com.biglybt.pif.utils.StaticUtilities;
 import com.biglybt.pif.utils.resourcedownloader.*;
-import com.biglybt.platform.win32.access.AEWin32Access;
-import com.biglybt.platform.win32.access.AEWin32Manager;
 import com.biglybt.ui.UIFunctions;
 import com.biglybt.ui.UIFunctionsManager;
 
@@ -960,48 +958,19 @@ CoreUpdateChecker
 
 			if ( file.getName().endsWith( ".exe" )){
 
-				try{
-					AEWin32Access accessor = AEWin32Manager.getAccessor(true);
+				if ( args.length > 0 ){
 
-					// accessor.createProcess( , false );
+					String[] s_args = new String[args.length+1];
 
-					String	s_args = null;
+					s_args[0] = file.getAbsolutePath();
 
-					if ( args.length > 0 ){
+					System.arraycopy( args, 0, s_args, 1, args.length );
 
-						s_args = "";
+					Runtime.getRuntime().exec( s_args );
 
-						for ( String s: args ){
+				}else{
 
-							s_args += (s_args.length()==0?"":" ") + s;
-						}
-					}
-
-					accessor.shellExecute(
-						null,
-						file.getAbsolutePath(),
-						s_args,
-						SystemProperties.getApplicationPath(),
-						AEWin32Access.SW_NORMAL );
-
-				}catch( Throwable e ){
-
-					Logger.log( new LogEvent( LogIDs.LOGGER, "AEWin32Access failed", e  ));
-
-					if ( args.length > 0 ){
-
-						String[] s_args = new String[args.length+1];
-
-						s_args[0] = file.getAbsolutePath();
-
-						System.arraycopy( args, 0, s_args, 1, args.length );
-
-						Runtime.getRuntime().exec( s_args );
-
-					}else{
-
-						Runtime.getRuntime().exec( new String[]{ file.getAbsolutePath() } );
-					}
+					Runtime.getRuntime().exec( new String[]{ file.getAbsolutePath() } );
 				}
 			}else{
 					// osx, need to unzip .app and launch

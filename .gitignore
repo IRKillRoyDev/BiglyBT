@@ -158,6 +158,7 @@ local.properties
 
 ### Maven template
 target/
+dist/
 pom.xml.tag
 pom.xml.releaseBackup
 pom.xml.versionsBackup

@@ -176,8 +176,8 @@ PluginManagerImpl
 			// Most likely, a plugin is calling this from their main(), which
 			// will not be using our primary class loader.  Which means we already
 			// have some core classes initialized on it, making it too late to
-			// switch. (For example, aereg.dll will already be loaded, and the class
-			// loading switch will cause an exception when trying to laod it again)
+			// switch. Native libraries may already be loaded, and the class
+			// loading switch will cause an exception when trying to load them again.
 			System.setProperty("USE_OUR_PRIMARYCLASSLOADER", "0");
 
 			String	mi = (String)properties.get( PluginManager.PR_MULTI_INSTANCE );

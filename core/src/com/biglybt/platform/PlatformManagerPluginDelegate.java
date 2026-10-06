@@ -51,10 +51,7 @@ public class PlatformManagerPluginDelegate
 			PlatformManager platform = PlatformManagerFactory.getPlatformManager();
 	
 			int platformType = platform.getPlatformType();
-			if ( platformType == PlatformManager.PT_WINDOWS ){
-				Plugin plugin = (Plugin) Class.forName("com.biglybt.platform.win32.PlatformManagerUpdateChecker").newInstance();
-				plugin.initialize(pluginInterface);
-			}else if ( platformType == PlatformManager.PT_MACOSX ){
+			if ( platformType == PlatformManager.PT_MACOSX ){
 				Plugin plugin = (Plugin) Class.forName("com.biglybt.platform.macosx.PlatformManagerUpdateChecker").newInstance();
 				plugin.initialize(pluginInterface);
 			}else if ( platformType == PlatformManager.PT_UNIX ){

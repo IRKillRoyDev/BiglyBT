@@ -290,14 +290,12 @@ public class SystemProperties {
 				}
 			} catch ( Throwable e ){
 				System.err.println("Unable to retrieve user config path from "
-									+ "the platform manager. "
-									+ "Make sure aereg.dll is present.");
+									+ "the platform manager.");
 				// Called within initialization.. no logger!
 //				if (Logger.isEnabled()) {
 //					Logger.log(new LogEvent(LOGID,
 //							"Unable to retrieve user config path from "
-//									+ "the platform manager. "
-//									+ "Make sure aereg.dll is present."));
+//									+ "the platform manager."));
 //				}
 			}
 

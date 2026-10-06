@@ -26,7 +26,6 @@ import java.util.Properties;
 
 import com.biglybt.core.Core;
 import com.biglybt.core.CoreException;
-import com.biglybt.core.internat.MessageText;
 import com.biglybt.core.logging.LogAlert;
 import com.biglybt.core.logging.LogEvent;
 import com.biglybt.core.logging.LogIDs;
@@ -37,14 +36,10 @@ import com.biglybt.core.util.Debug;
 import com.biglybt.core.util.FileUtil;
 import com.biglybt.core.util.SystemProperties;
 import com.biglybt.pif.PluginInterface;
-import com.biglybt.pif.platform.PlatformManagerException;
 import com.biglybt.pifimpl.local.PluginInitializer;
 import com.biglybt.platform.PlatformManager;
 import com.biglybt.platform.PlatformManagerFactory;
 import com.biglybt.platform.unix.ScriptAfterShutdown;
-import com.biglybt.platform.win32.access.AEWin32Access;
-import com.biglybt.platform.win32.access.AEWin32Manager;
-import com.biglybt.update.UpdaterUtils;
 
 public class
 ClientRestarterImpl
@@ -53,7 +48,6 @@ ClientRestarterImpl
 	private static final LogIDs LOGID = LogIDs.CORE;
 	private static final String MAIN_CLASS 		= "com.biglybt.update.Updater";
 	private static final String UPDATER_JAR 	= "Updater.jar";
-	private static final String EXE_UPDATER		= "BiglyBTUpdater.exe";
 
 
 	public static final String		UPDATE_PROPERTIES	= "update.properties";
@@ -281,185 +275,6 @@ ClientRestarterImpl
 	}
 
 
-	private String getExeUpdater(PrintWriter log) {
-		try {
-
-				// Vista test: 	We will need to run an elevated EXE updater if we can't
-				//            	write to the program dir.
-
-			if (Constants.isWindowsVistaOrHigher ){
-
-				if (PluginInitializer.getDefaultInterface().getUpdateManager().getInstallers().length > 0) {
-
-					log.println( "Vista restart w/Updates.. checking if EXE needed" );
-
-					if ( !FileUtil.canReallyWriteToAppDirectory()){
-
-						log.println( "It appears we can't write to the application dir, using the EXE updater" );
-
-						return( EXE_UPDATER );
-					}
-				}
-			}
-		}catch ( Throwable t ){
-			// ignore vista test
-		}
-
-		return null;
-	}
-
-  private boolean restartViaEXE(PrintWriter log,
-  		String exeUpdater,
-      String[]  properties,
-      String[]  parameters,
-      String backupJavaRunString,
-      boolean update_only)
-  {
-		String azRunner = null;
-		File fileRestart = null;
-		if (!update_only) {
-  		try {
-  			azRunner = PlatformManagerFactory.getPlatformManager().getApplicationCommandLine();
-  		} catch (PlatformManagerException e) {
-  			// TODO Auto-generated catch block
-  			e.printStackTrace();
-  		}
-		}
-
-		try {
-			int result;
-			AEWin32Access accessor = AEWin32Manager.getAccessor(true);
-			if (accessor == null) {
-				result = -123;
-			} else {
-				if (azRunner != null) {
-					// create a batch file to run the updater, then to restart client
-					// because the updater would restart client as administrator user
-					// and confuse the user
-					fileRestart = FileUtil.getUserFile("restart.bat");
-					String s = "title BiglyBT Updater Runner\r\n";
-					s += exeUpdater + " \"updateonly\"";
-					for (int i = 1; i < parameters.length; i++) {
-						s += " \"" + parameters[i].replaceAll("\\\"", "") + "\"";
-					}
-					s += "\r\n";
-					s += "start \"\" \"" + azRunner + "\"";
-
-					byte[]	bytes;
-
-					String	encoding = FileUtil.getScriptCharsetEncoding();
-
-					if ( encoding == null ){
-						bytes = s.getBytes();
-					}else{
-						try{
-							bytes = s.getBytes( encoding );
-						}catch( Throwable e){
-							e.printStackTrace();
-
-							bytes = s.getBytes();
-						}
-					}
-					FileUtil.writeBytesAsFile(fileRestart.getAbsolutePath(),bytes);
-
-					result = accessor.shellExecute(null, fileRestart.getAbsolutePath(),
-							null, SystemProperties.getApplicationPath(),
-							AEWin32Access.SW_SHOWMINIMIZED);
-				} else {
-					String execEXE = "\"-J" + getClassPath().replaceAll("\\\"", "")
-							+ "\" ";
-
-					for (int i = 0; i < properties.length; i++) {
-						execEXE += "\"-J" + properties[i].replaceAll("\\\"", "") + "\" ";
-					}
-
-					for (int i = 0; i < parameters.length; i++) {
-						execEXE += " \"" + parameters[i].replaceAll("\\\"", "") + "\"";
-					}
-
-					log.println("Launch via " + exeUpdater + " params " + execEXE);
-					result = accessor.shellExecute(null, exeUpdater, execEXE,
-							SystemProperties.getApplicationPath(), AEWin32Access.SW_NORMAL);
-				}
-			}
-
-			/*
-			 * Some results:
-			 * 0: OOM
-			 * 2: FNF
-			 * 3: Path Not Foud
-			 * 5: Access Denied (User clicked cancel on admin access dialog)
-			 * 8: OOM
-			 * 11: Bad Format
-			 * 26: Sharing Violation
-			 * 27: Association incomplete
-			 * 28: DDE Timeout
-			 * 29: DDE Fail
-			 * 30: DDE Busy
-			 * 31: No Association
-			 * 32: DLL Not found
-			 * >32: OK!
-			 */
-			log.println("   -> " + result);
-
-			if (result <= 32) {
-				String sErrorReason = "";
-				String key = null;
-
-				switch (result) {
-					case 0:
-					case 8:
-						key = "oom";
-						break;
-
-					case 2:
-						key = "fnf";
-						break;
-
-					case 3:
-						key = "pnf";
-						break;
-
-					case 5:
-						key = "denied";
-						break;
-
-					case 11:
-						key = "bad";
-						break;
-
-					case -123:
-						key = "nowin32";
-						break;
-
-					default:
-						sErrorReason = "" + result;
-						break;
-				}
-				if (key != null) {
-					sErrorReason = MessageText.getString("restart.error." + key,
-							new String[] {
-								exeUpdater,
-								SystemProperties.getApplicationPath(),
-							});
-				}
-				Logger.log(new LogAlert(false, LogAlert.AT_ERROR,
-						MessageText.getString("restart.error", new String[] {
-							sErrorReason
-						})));
-				return false;
-			}
-		} catch (Throwable f) {
-
-			f.printStackTrace(log);
-
-			return javaSpawn(log, backupJavaRunString);
-		}
-
-		return true;
-	}
-
-
   // ****************** This code is copied into Restarter / Updater so make changes there too !!!
 
 
@@ -483,7 +298,7 @@ ClientRestarterImpl
 
     }else{
 
-    	return( restart_win32(log,mainClass,properties,parameters,update_only));
+    	return( restart_win32(log,mainClass,properties,parameters));
     }
   }
 
@@ -492,11 +307,8 @@ ClientRestarterImpl
       PrintWriter log,
     String    mainClass,
     String[]  properties,
-    String[]  parameters,
-    boolean	update_only)
+    String[]  parameters)
   {
-  	String exeUpdater = getExeUpdater(log);  // Not for Updater.java
-
   	String exec;
 
 		//Classic restart way using Runtime.exec directly on java(w)
@@ -512,16 +324,12 @@ ClientRestarterImpl
 			exec += " \"" + parameters[i] + "\"";
 		}
 
-		if (exeUpdater != null) {
-			return( restartViaEXE(log, exeUpdater, properties, parameters, exec, update_only));
-		} else {
-			log.println("  " + exec);
+		log.println("  " + exec);
 
-			if (!win32NativeRestart(log, exec)) {
-				return( javaSpawn(log, exec));
-			}else{
-				return( true );
-			}
+		if (!win32NativeRestart(log, exec)) {
+			return( javaSpawn(log, exec));
+		}else{
+			return( true );
 		}
 	}
 
